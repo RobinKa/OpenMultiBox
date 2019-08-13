@@ -4,11 +4,12 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace omb
 {
 	PROCESS_INFORMATION Launch(const std::string& path);
-	HWND FindProcessWindowHandle(DWORD processId, const std::string& windowTitle);
+	std::vector<HWND> FindProcessWindowHandles(DWORD processId, const std::string& windowTitle);
 	std::pair<int, int> GetMainScreenSize();
 	bool IsFocusedWindow(HWND hwnd);
 	POINT TransformWindowPoint(HWND originalWindowHandle, HWND targetWindowHandle, POINT point);

@@ -1,7 +1,5 @@
 #include "WinApiUtil.h"
 
-#include <vector>
-
 PROCESS_INFORMATION omb::Launch(const std::string& path)
 {
 	STARTUPINFO startupInfo;
@@ -44,7 +42,7 @@ static BOOL CALLBACK FindProcessWindowHandleCallback(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-HWND omb::FindProcessWindowHandle(DWORD processId, const std::string& windowTitle)
+std::vector<HWND> omb::FindProcessWindowHandles(DWORD processId, const std::string& windowTitle)
 {
 	EnumWindowCallbackData callbackData;
 	callbackData.WindowTitle = windowTitle;
@@ -57,7 +55,7 @@ HWND omb::FindProcessWindowHandle(DWORD processId, const std::string& windowTitl
 		throw std::exception("Failed to find process window");
 	}
 
-	return callbackData.WindowHandles[1];
+	return callbackData.WindowHandles;
 }
 
 std::pair<int, int> omb::GetMainScreenSize()

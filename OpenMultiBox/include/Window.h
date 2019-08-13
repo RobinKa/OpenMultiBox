@@ -2,17 +2,21 @@
 
 #include <Windows.h>
 
+#include <vector>
+
 namespace omb
 {
 	class Window
 	{
 	public:
-		Window(HWND windowHandle);
+		Window(const std::vector<HWND>& windowHandle);
 
 		void SetRect(int x, int y, int width, int height, bool topMost) const;
 
-		HWND GetHandle() const;
+		std::vector<HWND> GetHandles() const;
+
+		bool IsFocused() const;
 	private:
-		HWND windowHandle;
+		std::vector<HWND> windowHandles;
 	};
 }

@@ -98,8 +98,8 @@ int main()
 			{
 				try
 				{
-					HWND windowHandle = omb::FindProcessWindowHandle(procInfos[i].dwProcessId, settings.WindowTitle);
-					windows.push_back(omb::Window(windowHandle));
+					const auto& windowHandles = omb::FindProcessWindowHandles(procInfos[i].dwProcessId, settings.WindowTitle);
+					windows.push_back(omb::Window(windowHandles));
 					procInfos.erase(procInfos.begin() + i);
 				}
 				catch (const std::exception& ex)
@@ -119,11 +119,10 @@ int main()
 
 	group.AddHotkeyCallback(VK_F8, [&group, &eventLoop]()
 	{
-		std::cout << "Toggle stay on top" << std::endl;
-
 		eventLoop.EnqueueAction([&group]()
 		{
 			group.SetStayOnTop(!group.GetStayOnTop());
+			std::cout << "Stay on top: " << group.GetStayOnTop() << std::endl;
 		});
 	});
 

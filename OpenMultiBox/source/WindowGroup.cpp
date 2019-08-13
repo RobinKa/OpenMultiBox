@@ -58,7 +58,7 @@ omb::Window* omb::WindowGroup::GetFocusedWindow() const
 {
 	for (auto window : windows)
 	{
-		if (omb::IsFocusedWindow(window->GetHandle()))
+		if (window->IsFocused())
 		{
 			return window;
 		}
@@ -98,19 +98,23 @@ void omb::WindowGroup::SetupKeyboardBroadcastHook()
 			if (data->vkCode == VK_F10 || data->vkCode == VK_F11)
 			{
 				WindowGroupInstance->broadcast = data->vkCode == VK_F10;
+				std::cout << "Broadcast keyboard: " << WindowGroupInstance->broadcast << std::endl;
 			}
 			else if (wParam == WM_KEYUP && WindowGroupInstance->hotkeyCallbacks.contains(data->vkCode))
 			{
 				WindowGroupInstance->hotkeyCallbacks[data->vkCode]();
 			}
-			else if(WindowGroupInstance->broadcast)
+			else if (WindowGroupInstance->broadcast)
 			{
 				// Broadcast key to secondary windows
 				for (auto window : WindowGroupInstance->windows)
 				{
 					if (WindowGroupInstance->primaryWindow != window)
 					{
-						PostMessage(window->GetHandle(), wParam, (WPARAM)data->vkCode, GetKeyEventParameters(wParam));
+						for (auto windowHandle : window->GetHandles())
+						{
+							PostMessage(windowHandle, (UINT)wParam, (WPARAM)data->vkCode, GetKeyEventParameters(wParam));
+						}
 					}
 				}
 			}
@@ -137,9 +141,9 @@ void omb::WindowGroup::SetupMouseBroadcastHook()
 			{
 				if (WindowGroupInstance->primaryWindow != window)
 				{
-					POINT windowPoint = omb::TransformWindowPoint(WindowGroupInstance->primaryWindow->GetHandle(), window->GetHandle(), data->pt);
-					std::cout << "Click: " << windowPoint.x << "|" << windowPoint.y << std::endl;
-					PostMessage(window->GetHandle(), (UINT)wParam, MK_LBUTTON, MAKELPARAM(windowPoint.x, windowPoint.y));
+					// TODO: Get window at cursor and use that one for transforming from
+					POINT windowPoint = omb::TransformWindowPoint(WindowGroupInstance->primaryWindow->GetHandles()[0], window->GetHandles()[0], data->pt);
+					PostMessage(window->GetHandles()[0], (UINT)wParam, MK_LBUTTON, MAKELPARAM(windowPoint.x, windowPoint.y));
 				}
 			}
 		}
