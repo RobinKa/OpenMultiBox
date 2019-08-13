@@ -3,5 +3,7 @@
   "windowTitle": "World of Warcraft",
   "instanceCount": 5,
   "copyFromAccount": "AIRAAX",
-  "copyToAccounts": [ "471132#1", "471132#2", "471132#3", "471132#4" ]
+  "copyToAccounts": [ "471132#1", "471132#2", "471132#3", "471132#4" ],
+  "copyFromCharacter": "AIRAAX/Tarren Mill/Nuhrok",
+  "copyToCharacters": [ "471132#1/Tarren Mill/Nushamb", "471132#2/Tarren Mill/Nushamc", "471132#3/Tarren Mill/Nushamd", "471132#4/Tarren Mill/Nushame" ]
 }

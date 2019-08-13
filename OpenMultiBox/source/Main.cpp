@@ -16,7 +16,9 @@ struct Settings
 	std::string WindowTitle;
 	int InstanceCount;
 	std::string CopyFromAccount;
+	std::string CopyFromCharacter;
 	std::vector<std::string> CopyToAccounts;
+	std::vector<std::string> CopyToCharacters;
 };
 
 Settings LoadSettings()
@@ -32,7 +34,9 @@ Settings LoadSettings()
 		settings.WindowTitle = j["windowTitle"];
 		settings.InstanceCount = j["instanceCount"];
 		settings.CopyFromAccount = j["copyFromAccount"];
+		settings.CopyFromCharacter = j["copyFromCharacter"];
 		settings.CopyToAccounts = j["copyToAccounts"].get<std::vector<std::string>>();
+		settings.CopyToCharacters = j["copyToCharacters"].get<std::vector<std::string>>();
 
 		return settings;
 	}
@@ -136,6 +140,7 @@ int main()
 
 		const auto& wtfPath = settings.WowPath / "WTF" / "Account";
 
+		// Copy account files
 		const auto& fromPath = wtfPath / settings.CopyFromAccount;
 		for (const auto& copyToAccount : settings.CopyToAccounts)
 		{
@@ -150,6 +155,23 @@ int main()
 
 				fs::copy_file(fromFilePath, toFilePath, fs::copy_options::overwrite_existing);
 			}
+		}
+
+		// Copy character files
+		const auto& characterFromPath = wtfPath / settings.CopyFromCharacter / "SavedVariables";
+		const auto& characterFromAddonsPath = wtfPath / settings.CopyFromCharacter / "AddOns.txt";
+		for (const auto& copyToCharacter : settings.CopyToCharacters)
+		{
+			const auto& characterToPath = wtfPath / copyToCharacter / "SavedVariables";
+			const auto& characterToAddonsPath = wtfPath / copyToCharacter / "AddOns.txt";
+
+			std::cout << characterToPath << " => " << characterToAddonsPath << std::endl;
+
+			fs::copy_file(characterFromAddonsPath, characterToAddonsPath, fs::copy_options::overwrite_existing);
+
+			std::cout << characterFromPath << " => " << characterToPath << std::endl;
+
+			fs::copy(characterFromPath, characterToPath, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
 		}
 	});
 
