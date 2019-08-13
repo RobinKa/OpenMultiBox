@@ -9,7 +9,7 @@ namespace omb
 	public:
 		Window(HWND windowHandle);
 
-		void SetRect(int x, int y, int width, int height, HWND insertAfter) const;
+		void SetRect(int x, int y, int width, int height, bool topMost) const;
 
 		HWND GetHandle() const;
 	private:

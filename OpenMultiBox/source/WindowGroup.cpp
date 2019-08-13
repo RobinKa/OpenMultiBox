@@ -32,17 +32,15 @@ void omb::WindowGroup::Rearrange()
 		primaryWindow = focusedWindow;
 	}
 
-	HWND mode = stayOnTop ? HWND_TOPMOST : HWND_NOTOPMOST;
-
 	for (auto window : windows)
 	{
 		if (window == primaryWindow)
 		{
-			window->SetRect(0, 0, primaryWidth, primaryHeight, mode);
+			window->SetRect(0, 0, primaryWidth, primaryHeight, stayOnTop);
 		}
 		else
 		{
-			window->SetRect(primaryWidth, secondaryIndex * secondarySize.second, secondarySize.first, secondarySize.second, mode);
+			window->SetRect(primaryWidth, secondaryIndex * secondarySize.second, secondarySize.first, secondarySize.second, stayOnTop);
 			secondaryIndex++;
 		}
 	}
