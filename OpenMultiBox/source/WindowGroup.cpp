@@ -69,22 +69,49 @@ omb::Window* omb::WindowGroup::GetFocusedWindow() const
 
 static omb::WindowGroup* WindowGroupInstance = nullptr;
 
+LPARAM GetKeyEventParameters(WPARAM key)
+{
+	if (key == WM_KEYDOWN)
+	{
+		// https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-keydown
+		return 1ul;
+	}
+	else if (key == WM_KEYUP)
+	{
+		// https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-keyup
+		return (1ul << 31ul) | (1ul << 30ul) | 1ul;
+	}
+
+	throw std::exception("Invalid key passed to GetKeyEventParameters");
+}
+
 void omb::WindowGroup::SetupKeyboardBroadcastHook()
 {
 	WindowGroupInstance = this;
 
 	auto cb = [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT
 	{
-		if (wParam == WM_KEYDOWN && nCode >= 0)
+		if ((wParam == WM_KEYDOWN || wParam == WM_KEYUP) && nCode >= 0)
 		{
 			const KBDLLHOOKSTRUCT* data = (KBDLLHOOKSTRUCT*)lParam;
 
-			// Broadcast key to secondary windows
-			for (auto window : WindowGroupInstance->windows)
+			if (data->vkCode == VK_F10 || data->vkCode == VK_F11)
 			{
-				if (WindowGroupInstance->primaryWindow != window)
+				WindowGroupInstance->broadcast = data->vkCode == VK_F10;
+			}
+			else if (wParam == WM_KEYUP && WindowGroupInstance->hotkeyCallbacks.contains(data->vkCode))
+			{
+				WindowGroupInstance->hotkeyCallbacks[data->vkCode]();
+			}
+			else if(WindowGroupInstance->broadcast)
+			{
+				// Broadcast key to secondary windows
+				for (auto window : WindowGroupInstance->windows)
 				{
-					PostMessage(window->GetHandle(), WM_KEYDOWN, (WPARAM)data->vkCode, NULL);
+					if (WindowGroupInstance->primaryWindow != window)
+					{
+						PostMessage(window->GetHandle(), wParam, (WPARAM)data->vkCode, GetKeyEventParameters(wParam));
+					}
 				}
 			}
 		}
@@ -136,4 +163,9 @@ void omb::WindowGroup::RemoveHooks()
 		UnhookWindowsHookEx(mouseHookHandle);
 		mouseHookHandle = NULL;
 	}
+}
+
+void omb::WindowGroup::AddHotkeyCallback(DWORD key, std::function<void()> callback)
+{
+	hotkeyCallbacks.emplace(key, callback);
 }

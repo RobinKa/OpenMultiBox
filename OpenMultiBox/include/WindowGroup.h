@@ -3,6 +3,7 @@
 #include "Window.h"
 
 #include <vector>
+#include <map>
 #include <memory>
 #include <functional>
 
@@ -20,7 +21,11 @@ namespace omb
 
 		void Rearrange();
 		void RearrangeIfPrimaryChanged();
+
+		void AddHotkeyCallback(DWORD key, std::function<void()> callback);
 	private:
+		std::map<DWORD, std::function<void()>> hotkeyCallbacks;
+
 		std::vector<Window*> windows;
 		Window* primaryWindow = nullptr;
 
@@ -28,5 +33,7 @@ namespace omb
 
 		HHOOK keyboardHookHandle;
 		HHOOK mouseHookHandle;
+
+		bool broadcast = false;
 	};
 }

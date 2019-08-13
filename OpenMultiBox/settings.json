@@ -1,5 +1,7 @@
 {
-  "executablePath": "G:/World of Warcraft/_retail_/WoW.exe",
+  "wowPath": "G:/World of Warcraft/_retail_",
   "windowTitle": "World of Warcraft",
-  "instanceCount": 5
+  "instanceCount": 5,
+  "copyFromAccount": "AIRAAX",
+  "copyToAccounts": [ "471132#1", "471132#2", "471132#3", "471132#4" ]
 }

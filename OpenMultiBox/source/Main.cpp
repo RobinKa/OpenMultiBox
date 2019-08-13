@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <fstream>
+#include <filesystem>
 
 #include "EventLoop.h"
 #include "WinApiUtil.h"
@@ -7,11 +8,15 @@
 #include "WindowGroup.h"
 #include "Json.h"
 
+namespace fs = std::filesystem;
+
 struct Settings
 {
-	std::string ExecutablePath;
+	fs::path WowPath;
 	std::string WindowTitle;
 	int InstanceCount;
+	std::string CopyFromAccount;
+	std::vector<std::string> CopyToAccounts;
 };
 
 Settings LoadSettings()
@@ -23,9 +28,11 @@ Settings LoadSettings()
 		auto j = nlohmann::json::parse(fileStream);
 
 		Settings settings;
-		settings.ExecutablePath = j["executablePath"];
+		settings.WowPath = fs::path(std::string(j["wowPath"]));
 		settings.WindowTitle = j["windowTitle"];
 		settings.InstanceCount = j["instanceCount"];
+		settings.CopyFromAccount = j["copyFromAccount"];
+		settings.CopyToAccounts = j["copyToAccounts"].get<std::vector<std::string>>();
 
 		return settings;
 	}
@@ -63,19 +70,16 @@ int main()
 		}
 	};
 
-	int windowCount = 5;
-	std::string path = "G:/World of Warcraft/_retail_/Wow.exe";
-	std::string title = "World of Warcraft";
-
 	eventLoop.Run();
 
 	std::vector<PROCESS_INFORMATION> procInfos;
 
-	dispatchAction([&procInfos, path, windowCount]()
+	dispatchAction([&procInfos, &settings]()
 	{
-		for (int i = 0; i < windowCount; i++)
+		auto path = settings.WowPath / "Wow.exe";
+		for (int i = 0; i < settings.InstanceCount; i++)
 		{
-			procInfos.push_back(omb::Launch(path));
+			procInfos.push_back(omb::Launch(path.string()));
 		}
 	});
 
@@ -84,13 +88,13 @@ int main()
 
 	while (procInfos.size() > 0)
 	{
-		dispatchAction([&windows, &procInfos, title]()
+		dispatchAction([&windows, &procInfos, &settings]()
 		{
 			for (size_t i = procInfos.size(); i --> 0;)
 			{
 				try
 				{
-					HWND windowHandle = omb::FindProcessWindowHandle(procInfos[i].dwProcessId, title);
+					HWND windowHandle = omb::FindProcessWindowHandle(procInfos[i].dwProcessId, settings.WindowTitle);
 					windows.push_back(omb::Window(windowHandle));
 					procInfos.erase(procInfos.begin() + i);
 				}
@@ -108,6 +112,36 @@ int main()
 	{
 		group.AddWindow(&window);
 	}
+
+	group.AddHotkeyCallback(VK_F9, [&settings]()
+	{
+		std::cout << "Copying WTF config" << std::endl;
+
+		std::vector<fs::path> filesToCopy =
+		{
+			"macros-cache.txt",
+			"bindings-cache.wtf",
+			"config-cache.wtf"
+		};
+
+		const auto& wtfPath = settings.WowPath / "WTF" / "Account";
+
+		const auto& fromPath = wtfPath / settings.CopyFromAccount;
+		for (const auto& copyToAccount : settings.CopyToAccounts)
+		{
+			const auto& toPath = wtfPath / copyToAccount;
+
+			for (const auto& fileToCopy : filesToCopy)
+			{
+				const auto& fromFilePath = fromPath / fileToCopy;
+				const auto& toFilePath = toPath / fileToCopy;
+
+				std::cout << fromFilePath << " => " << toFilePath << std::endl;
+
+				fs::copy_file(fromFilePath, toFilePath, fs::copy_options::overwrite_existing);
+			}
+		}
+	});
 
 	group.Rearrange();
 
