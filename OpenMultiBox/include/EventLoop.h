@@ -16,10 +16,13 @@ namespace omb
 
 		void EnqueueAction(std::function<void()> action);
 
+		bool IsStopped() const;
+
 	private:
 		std::queue<std::function<void()>> actionQueue;
 		std::mutex actionQueueMutex;
 		std::thread thread;
 		bool stop = false;
+		bool stopped = true;
 	};
 }

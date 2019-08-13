@@ -76,7 +76,7 @@ int main()
 
 	group.Rearrange();
 
-	for (int i = 0; i < 100; i++)
+	while (!eventLoop.IsStopped())
 	{
 		group.RearrangeIfPrimaryChanged();
 		Sleep(500);

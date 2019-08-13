@@ -4,6 +4,9 @@
 
 void omb::EventLoop::Run()
 {
+	stopped = false;
+	stop = false;
+
 	thread = std::thread([this]()
 	{
 		MSG msg;
@@ -25,7 +28,14 @@ void omb::EventLoop::Run()
 				actionQueue.pop();
 			}
 		}
+
+		stopped = true;
 	});
+}
+
+bool omb::EventLoop::IsStopped() const
+{
+	return stopped;
 }
 
 void omb::EventLoop::Stop()
