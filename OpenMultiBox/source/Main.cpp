@@ -113,6 +113,16 @@ int main()
 		group.AddWindow(&window);
 	}
 
+	group.AddHotkeyCallback(VK_F8, [&group, &eventLoop]()
+	{
+		std::cout << "Toggle stay on top" << std::endl;
+
+		eventLoop.EnqueueAction([&group]()
+		{
+			group.SetStayOnTop(!group.GetStayOnTop());
+		});
+	});
+
 	group.AddHotkeyCallback(VK_F9, [&settings]()
 	{
 		std::cout << "Copying WTF config" << std::endl;

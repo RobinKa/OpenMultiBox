@@ -23,6 +23,9 @@ namespace omb
 		void RearrangeIfPrimaryChanged();
 
 		void AddHotkeyCallback(DWORD key, std::function<void()> callback);
+
+		void SetStayOnTop(bool b);
+		bool GetStayOnTop() const;
 	private:
 		std::map<DWORD, std::function<void()>> hotkeyCallbacks;
 
@@ -35,5 +38,6 @@ namespace omb
 		HHOOK mouseHookHandle;
 
 		bool broadcast = false;
+		bool stayOnTop = false;
 	};
 }

@@ -32,15 +32,17 @@ void omb::WindowGroup::Rearrange()
 		primaryWindow = focusedWindow;
 	}
 
+	HWND mode = stayOnTop ? HWND_TOPMOST : HWND_NOTOPMOST;
+
 	for (auto window : windows)
 	{
 		if (window == primaryWindow)
 		{
-			window->SetRect(0, 0, primaryWidth, primaryHeight);
+			window->SetRect(0, 0, primaryWidth, primaryHeight, mode);
 		}
 		else
 		{
-			window->SetRect(primaryWidth, secondaryIndex * secondarySize.second, secondarySize.first, secondarySize.second);
+			window->SetRect(primaryWidth, secondaryIndex * secondarySize.second, secondarySize.first, secondarySize.second, mode);
 			secondaryIndex++;
 		}
 	}
@@ -168,4 +170,19 @@ void omb::WindowGroup::RemoveHooks()
 void omb::WindowGroup::AddHotkeyCallback(DWORD key, std::function<void()> callback)
 {
 	hotkeyCallbacks.emplace(key, callback);
+}
+
+void omb::WindowGroup::SetStayOnTop(bool b)
+{
+	bool changed = stayOnTop == b;
+	stayOnTop = b;
+	if (changed)
+	{
+		Rearrange();
+	}
+}
+
+bool omb::WindowGroup::GetStayOnTop() const
+{
+	return stayOnTop;
 }
