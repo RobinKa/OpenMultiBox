@@ -94,3 +94,46 @@ void omb::WindowGroup::SetupKeyboardBroadcastHook()
 
 	keyboardHookHandle = SetWindowsHookEx(WH_KEYBOARD_LL, cb, 0, 0);
 }
+
+void omb::WindowGroup::SetupMouseBroadcastHook()
+{
+	WindowGroupInstance = this;
+
+	auto cb = [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT
+	{
+		if ((wParam == WM_LBUTTONDOWN || wParam == WM_LBUTTONUP) && nCode >= 0)
+		{
+			const MSLLHOOKSTRUCT* data = (MSLLHOOKSTRUCT*)lParam;
+
+			// Broadcast key to secondary windows
+			for (auto window : WindowGroupInstance->windows)
+			{
+				if (WindowGroupInstance->primaryWindow != window)
+				{
+					POINT windowPoint = omb::TransformWindowPoint(WindowGroupInstance->primaryWindow->GetHandle(), window->GetHandle(), data->pt);
+					std::cout << "Click: " << windowPoint.x << "|" << windowPoint.y << std::endl;
+					PostMessage(window->GetHandle(), (UINT)wParam, MK_LBUTTON, MAKELPARAM(windowPoint.x, windowPoint.y));
+				}
+			}
+		}
+
+		return CallNextHookEx(WindowGroupInstance->keyboardHookHandle, nCode, wParam, lParam);
+	};
+
+	mouseHookHandle = SetWindowsHookEx(WH_MOUSE_LL, cb, 0, 0);
+}
+
+void omb::WindowGroup::RemoveHooks()
+{
+	if (keyboardHookHandle)
+	{
+		UnhookWindowsHookEx(keyboardHookHandle);
+		keyboardHookHandle = NULL;
+	}
+
+	if (mouseHookHandle)
+	{
+		UnhookWindowsHookEx(mouseHookHandle);
+		mouseHookHandle = NULL;
+	}
+}

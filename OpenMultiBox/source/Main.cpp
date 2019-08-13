@@ -82,13 +82,29 @@ int main()
 
 	group.Rearrange();
 
-	dispatchAction([&group]() { group.SetupKeyboardBroadcastHook(); });
+	dispatchAction([&group]()
+	{ 
+		group.SetupKeyboardBroadcastHook();
+		//group.SetupMouseBroadcastHook();
+	});
 
 	while (!eventLoop.IsStopped())
 	{
-		group.RearrangeIfPrimaryChanged();
+		try
+		{
+			group.RearrangeIfPrimaryChanged();
+		}
+		catch (const std::exception& ex)
+		{
+			break;
+		}
+
 		Sleep(SleepInterval);
 	}
+
+	std::cout << "Done" << std::endl;
+
+	group.RemoveHooks();
 
 	eventLoop.Stop();
 

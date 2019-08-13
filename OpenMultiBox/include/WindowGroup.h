@@ -14,6 +14,9 @@ namespace omb
 		void AddWindow(Window* window);
 
 		void SetupKeyboardBroadcastHook();
+		void SetupMouseBroadcastHook();
+
+		void RemoveHooks();
 
 		void Rearrange();
 		void RearrangeIfPrimaryChanged();
@@ -24,5 +27,6 @@ namespace omb
 		Window* GetFocusedWindow() const;
 
 		HHOOK keyboardHookHandle;
+		HHOOK mouseHookHandle;
 	};
 }
