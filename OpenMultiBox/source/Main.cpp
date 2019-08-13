@@ -7,7 +7,8 @@
 
 int main()
 {
-	int windowCount;
+	const int SleepInterval = 100;
+
 	std::cout << "Enter number of windows: ";
 	std::cin >> windowCount;
 
@@ -20,31 +21,41 @@ int main()
 	std::getline(std::cin >> std::ws, title);
 
 	omb::EventLoop eventLoop;
-	eventLoop.Run();
 
-	bool actionDone = false;
+	// Enqueues an action in the event loop and waits until it is ran.
+	auto dispatchAction = [&eventLoop](std::function<void()> action)
+	{
+		bool actionDone = false;
+		eventLoop.EnqueueAction([&action, &actionDone]()
+		{
+			action();
+			actionDone = true;
+		});
+
+		while (!actionDone)
+		{
+			Sleep(SleepInterval);
+		}
+	};
+
+	eventLoop.Run();
 
 	std::vector<PROCESS_INFORMATION> procInfos;
 
-	eventLoop.EnqueueAction([&actionDone, &procInfos, path, windowCount]()
+	dispatchAction([&procInfos, path, windowCount]()
 	{
 		for (int i = 0; i < windowCount; i++)
 		{
 			procInfos.push_back(omb::Launch(path));
 		}
-
-		actionDone = true;
 	});
-
-	while (!actionDone) Sleep(200);
-	actionDone = false;
 
 	// Wait until all windows are opened and thus found
 	std::vector<omb::Window> windows;
 
 	while (procInfos.size() > 0)
 	{
-		eventLoop.EnqueueAction([&actionDone, &windows, &procInfos, title]()
+		dispatchAction([&windows, &procInfos, title]()
 		{
 			for (size_t i = procInfos.size(); i --> 0;)
 			{
@@ -58,12 +69,7 @@ int main()
 				{
 				}
 			}
-
-			actionDone = true;
 		});
-
-		while (!actionDone) Sleep(200);
-		actionDone = false;
 	}
 
 	std::cout << "Loaded all windows" << std::endl;
@@ -79,7 +85,7 @@ int main()
 	while (!eventLoop.IsStopped())
 	{
 		group.RearrangeIfPrimaryChanged();
-		Sleep(500);
+		Sleep(SleepInterval);
 	}
 
 	eventLoop.Stop();
