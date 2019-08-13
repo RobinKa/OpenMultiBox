@@ -82,6 +82,8 @@ int main()
 
 	group.Rearrange();
 
+	dispatchAction([&group]() { group.SetupKeyboardBroadcastHook(); });
+
 	while (!eventLoop.IsStopped())
 	{
 		group.RearrangeIfPrimaryChanged();

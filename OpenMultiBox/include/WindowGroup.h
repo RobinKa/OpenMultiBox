@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <memory>
+#include <functional>
 
 namespace omb
 {
@@ -12,6 +13,8 @@ namespace omb
 	public:
 		void AddWindow(Window* window);
 
+		void SetupKeyboardBroadcastHook();
+
 		void Rearrange();
 		void RearrangeIfPrimaryChanged();
 	private:
@@ -19,5 +22,7 @@ namespace omb
 		Window* primaryWindow = nullptr;
 
 		Window* GetFocusedWindow() const;
+
+		HHOOK keyboardHookHandle;
 	};
 }

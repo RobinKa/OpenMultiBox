@@ -26,7 +26,11 @@ void omb::WindowGroup::Rearrange()
 
 	int secondaryIndex = 0;
 
-	primaryWindow = GetFocusedWindow();
+	const auto focusedWindow = GetFocusedWindow();
+	if (focusedWindow)
+	{
+		primaryWindow = focusedWindow;
+	}
 
 	for (auto window : windows)
 	{
@@ -61,4 +65,32 @@ omb::Window* omb::WindowGroup::GetFocusedWindow() const
 	}
 
 	return nullptr;
+}
+
+static omb::WindowGroup* WindowGroupInstance = nullptr;
+
+void omb::WindowGroup::SetupKeyboardBroadcastHook()
+{
+	WindowGroupInstance = this;
+
+	auto cb = [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT
+	{
+		if (wParam == WM_KEYDOWN && nCode >= 0)
+		{
+			const KBDLLHOOKSTRUCT* data = (KBDLLHOOKSTRUCT*)lParam;
+
+			// Broadcast key to secondary windows
+			for (auto window : WindowGroupInstance->windows)
+			{
+				if (WindowGroupInstance->primaryWindow != window)
+				{
+					PostMessage(window->GetHandle(), WM_KEYDOWN, (WPARAM)data->vkCode, NULL);
+				}
+			}
+		}
+
+		return CallNextHookEx(WindowGroupInstance->keyboardHookHandle, nCode, wParam, lParam);
+	};
+
+	keyboardHookHandle = SetWindowsHookEx(WH_KEYBOARD_LL, cb, 0, 0);
 }
