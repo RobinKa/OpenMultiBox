@@ -1,24 +1,49 @@
 ﻿#include <iostream>
+#include <fstream>
 
 #include "EventLoop.h"
 #include "WinApiUtil.h"
 #include "Window.h"
 #include "WindowGroup.h"
+#include "Json.h"
+
+struct Settings
+{
+	std::string ExecutablePath;
+	std::string WindowTitle;
+	int InstanceCount;
+};
+
+Settings LoadSettings()
+{
+	std::ifstream fileStream("settings.json");
+
+	try
+	{
+		auto j = nlohmann::json::parse(fileStream);
+
+		Settings settings;
+		settings.ExecutablePath = j["executablePath"];
+		settings.WindowTitle = j["windowTitle"];
+		settings.InstanceCount = j["instanceCount"];
+
+		return settings;
+	}
+	catch (nlohmann::json::parse_error& e)
+	{
+		std::cout << "Error parsing json: " << e.what() << std::endl
+			<< "exception id: " << e.id << std::endl
+			<< "byte position of error: " << e.byte << std::endl;
+
+		throw e;
+	}
+}
 
 int main()
 {
 	const int SleepInterval = 100;
 
-	std::cout << "Enter number of windows: ";
-	std::cin >> windowCount;
-
-	std::string path;
-	std::cout << "Enter path to exe: ";
-	std::getline(std::cin >> std::ws, path);
-
-	std::string title;
-	std::cout << "Enter window title: ";
-	std::getline(std::cin >> std::ws, title);
+	const auto& settings = LoadSettings();
 
 	omb::EventLoop eventLoop;
 
@@ -37,6 +62,10 @@ int main()
 			Sleep(SleepInterval);
 		}
 	};
+
+	int windowCount = 5;
+	std::string path = "G:/World of Warcraft/_retail_/Wow.exe";
+	std::string title = "World of Warcraft";
 
 	eventLoop.Run();
 

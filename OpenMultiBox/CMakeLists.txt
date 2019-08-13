@@ -11,3 +11,5 @@ add_executable (OpenMultiBox ${sourceFiles})
 include_directories("include")
 
 # TODO: Add tests and install targets if needed.
+
+configure_file("settings.json" "settings.json" COPYONLY)
