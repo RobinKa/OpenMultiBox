@@ -71,12 +71,12 @@ static omb::WindowGroup* WindowGroupInstance = nullptr;
 
 LPARAM GetKeyEventParameters(WPARAM key)
 {
-	if (key == WM_KEYDOWN)
+	if (key == WM_KEYDOWN || key == WM_SYSKEYDOWN)
 	{
 		// https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-keydown
 		return 1ul;
 	}
-	else if (key == WM_KEYUP)
+	else if (key == WM_KEYUP || key == WM_SYSKEYUP)
 	{
 		// https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-keyup
 		return (1ul << 31ul) | (1ul << 30ul) | 1ul;
@@ -91,7 +91,7 @@ void omb::WindowGroup::SetupKeyboardBroadcastHook()
 
 	auto cb = [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT
 	{
-		if ((wParam == WM_KEYDOWN || wParam == WM_KEYUP) && nCode >= 0)
+		if ((wParam == WM_KEYDOWN || wParam == WM_KEYUP || wParam == WM_SYSKEYDOWN || wParam == WM_SYSKEYUP) && nCode >= 0)
 		{
 			const KBDLLHOOKSTRUCT* data = (KBDLLHOOKSTRUCT*)lParam;
 
