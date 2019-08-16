@@ -3,6 +3,7 @@ Multiboxing software for World of Warcraft (and perhaps other games, if you are 
 
 # Features
 - Key broadcasting
+- Mouse click broadcasting
 - Set focused window as primary window
 - Copy various WTF files
 
@@ -14,13 +15,13 @@ Multiboxing software for World of Warcraft (and perhaps other games, if you are 
 5. Log in and turn on key broadcasting with F10
 
 # Hotkeys
+- OEM Key 1 (`[` on English keyboards): Broadcast mouse left click
+- F7: Toggles movement key (WASD) broadcasting
 - F8: Toggles WoW window topmost setting (keeps the windows in front of all other windows)
 - F9: Copy WTF files (account-wide settings / macro / config cache, per-character addon settings), requires `/console synchronizeSettings 0` and logging out so that settings don't get overriden from blizzard servers)
 - F10: Enables keyboard broadcasting
 - F11: Disables keyboard broadcasting
 
 # Known major issues and to do list
-- Key combination hotkeys (eg. `Alt + 1`) do not work for abilities
 - No UI
-- No mouse broadcasting (commented out as it has some issues right now)
 - Window placement hardcoded (although still relative to screen size)
