@@ -24,8 +24,22 @@ namespace omb
 
 		void AddHotkeyCallback(DWORD key, std::function<void()> callback);
 
+		void LeftClick(int delayMs);
+
 		void SetStayOnTop(bool b);
 		bool GetStayOnTop() const;
+		void SetBroadcastMovement(bool b);
+		bool GetBroadcastMovement() const;
+		void SetBroadcast(bool b);
+		bool GetBroadcast() const;
+
+		void SetWindowSwitching(bool b);
+		bool GetWindowSwitching() const;
+
+		const std::map<DWORD, std::function<void()>>& GetHotkeyCallbacks();
+
+		const Window* GetPrimaryWindow() const;
+		const std::vector<Window*>& GetWindows() const;
 	private:
 		std::map<DWORD, std::function<void()>> hotkeyCallbacks;
 
@@ -39,5 +53,8 @@ namespace omb
 
 		bool broadcast = false;
 		bool stayOnTop = false;
+		bool broadcastMovement = false;
+		bool windowSwitching = false;
+		bool clicking = false;
 	};
 }

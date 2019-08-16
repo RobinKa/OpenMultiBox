@@ -13,4 +13,5 @@ namespace omb
 	std::pair<int, int> GetMainScreenSize();
 	bool IsFocusedWindow(HWND hwnd);
 	POINT TransformWindowPoint(HWND originalWindowHandle, HWND targetWindowHandle, POINT point);
+	void LeftClickWindows(const std::vector<class Window*>& windows, int delayMs);
 }

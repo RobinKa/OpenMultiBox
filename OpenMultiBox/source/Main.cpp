@@ -117,6 +117,20 @@ int main()
 		group.AddWindow(&window);
 	}
 
+	group.AddHotkeyCallback(VK_OEM_1, [&group]()
+	{
+		group.LeftClick(35);
+	});
+
+	group.AddHotkeyCallback(VK_F7, [&group, &eventLoop]()
+	{
+		eventLoop.EnqueueAction([&group]()
+		{
+			group.SetBroadcastMovement(!group.GetBroadcastMovement());
+			std::cout << "Broadcast movement: " << group.GetBroadcastMovement() << std::endl;
+		});
+	});
+
 	group.AddHotkeyCallback(VK_F8, [&group, &eventLoop]()
 	{
 		eventLoop.EnqueueAction([&group]()
@@ -174,13 +188,38 @@ int main()
 		}
 	});
 
+	group.AddHotkeyCallback(VK_F10, [&group, &eventLoop]()
+	{
+		eventLoop.EnqueueAction([&group]()
+		{
+			group.SetBroadcast(!group.GetBroadcast());
+			std::cout << "Broadcast: " << group.GetBroadcast() << std::endl;
+		});
+	});
+
 	group.Rearrange();
 
 	dispatchAction([&group]()
 	{ 
 		group.SetupKeyboardBroadcastHook();
-		//group.SetupMouseBroadcastHook();
 	});
+
+	/*std::thread t([&group, &eventLoop]()
+	{
+		group.SetupMouseBroadcastHook();
+
+		while (!eventLoop.IsStopped())
+		{
+			MSG msg;
+			ZeroMemory(&msg, sizeof(MSG));
+
+			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+	});*/
 
 	while (!eventLoop.IsStopped())
 	{
@@ -201,6 +240,8 @@ int main()
 	group.RemoveHooks();
 
 	eventLoop.Stop();
+
+	//t.join();
 
 	return 0;
 }

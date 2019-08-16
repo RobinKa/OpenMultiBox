@@ -3,6 +3,7 @@
 #include "WinApiUtil.h"
 
 #include <iostream>
+#include <thread>
 
 void omb::WindowGroup::AddWindow(Window* window)
 {
@@ -26,10 +27,13 @@ void omb::WindowGroup::Rearrange()
 
 	int secondaryIndex = 0;
 
-	const auto focusedWindow = GetFocusedWindow();
-	if (focusedWindow)
+	if (windowSwitching)
 	{
-		primaryWindow = focusedWindow;
+		const auto focusedWindow = GetFocusedWindow();
+		if (focusedWindow)
+		{
+			primaryWindow = focusedWindow;
+		}
 	}
 
 	for (auto window : windows)
@@ -69,7 +73,7 @@ omb::Window* omb::WindowGroup::GetFocusedWindow() const
 
 static omb::WindowGroup* WindowGroupInstance = nullptr;
 
-LPARAM GetKeyEventParameters(WPARAM key)
+inline LPARAM GetKeyEventParameters(WPARAM key)
 {
 	if (key == WM_KEYDOWN || key == WM_SYSKEYDOWN)
 	{
@@ -85,6 +89,12 @@ LPARAM GetKeyEventParameters(WPARAM key)
 	throw std::exception("Invalid key passed to GetKeyEventParameters");
 }
 
+inline bool IsMovementKey(DWORD key)
+{
+	return key == 'w' || key == 'a' || key == 's' || key == 'd' || key == 'q' || key == 'e' ||
+		key == 'W' || key == 'A' || key == 'S' || key == 'D' || key == 'Q' || key == 'E';
+}
+
 void omb::WindowGroup::SetupKeyboardBroadcastHook()
 {
 	WindowGroupInstance = this;
@@ -95,21 +105,20 @@ void omb::WindowGroup::SetupKeyboardBroadcastHook()
 		{
 			const KBDLLHOOKSTRUCT* data = (KBDLLHOOKSTRUCT*)lParam;
 
-			if (data->vkCode == VK_F10 || data->vkCode == VK_F11)
+			const auto& hotkeyCallbacks = WindowGroupInstance->GetHotkeyCallbacks();
+
+			if (wParam == WM_KEYUP && hotkeyCallbacks.contains(data->vkCode))
 			{
-				WindowGroupInstance->broadcast = data->vkCode == VK_F10;
-				std::cout << "Broadcast keyboard: " << WindowGroupInstance->broadcast << std::endl;
+				hotkeyCallbacks.at(data->vkCode)();
 			}
-			else if (wParam == WM_KEYUP && WindowGroupInstance->hotkeyCallbacks.contains(data->vkCode))
+			else if (WindowGroupInstance->GetBroadcast() && (WindowGroupInstance->GetBroadcastMovement() || !IsMovementKey(data->vkCode)))
 			{
-				WindowGroupInstance->hotkeyCallbacks[data->vkCode]();
-			}
-			else if (WindowGroupInstance->broadcast)
-			{
+				auto primaryWindow = WindowGroupInstance->GetPrimaryWindow();
+
 				// Broadcast key to secondary windows
-				for (auto window : WindowGroupInstance->windows)
+				for (auto window : WindowGroupInstance->GetWindows())
 				{
-					if (WindowGroupInstance->primaryWindow != window)
+					if (window != primaryWindow)
 					{
 						for (auto windowHandle : window->GetHandles())
 						{
@@ -136,16 +145,13 @@ void omb::WindowGroup::SetupMouseBroadcastHook()
 		{
 			const MSLLHOOKSTRUCT* data = (MSLLHOOKSTRUCT*)lParam;
 
-			// Broadcast key to secondary windows
-			for (auto window : WindowGroupInstance->windows)
-			{
-				if (WindowGroupInstance->primaryWindow != window)
-				{
-					// TODO: Get window at cursor and use that one for transforming from
-					POINT windowPoint = omb::TransformWindowPoint(WindowGroupInstance->primaryWindow->GetHandles()[0], window->GetHandles()[0], data->pt);
-					PostMessage(window->GetHandles()[0], (UINT)wParam, MK_LBUTTON, MAKELPARAM(windowPoint.x, windowPoint.y));
-				}
-			}
+			HWND cursorWindowHandle = WindowFromPoint(data->pt);
+
+			std::cout << "Cursor window handle: " << cursorWindowHandle << " | Primary handles: " <<
+				WindowGroupInstance->primaryWindow->GetHandles()[0] << ", " <<
+				WindowGroupInstance->primaryWindow->GetHandles()[1] << std::endl;
+
+			// TODO: Broadcast click
 		}
 
 		return CallNextHookEx(WindowGroupInstance->keyboardHookHandle, nCode, wParam, lParam);
@@ -187,4 +193,57 @@ void omb::WindowGroup::SetStayOnTop(bool b)
 bool omb::WindowGroup::GetStayOnTop() const
 {
 	return stayOnTop;
+}
+
+bool omb::WindowGroup::GetBroadcastMovement() const
+{
+	return broadcastMovement;
+}
+
+void omb::WindowGroup::SetBroadcastMovement(bool b)
+{
+	broadcastMovement = b;
+}
+
+bool omb::WindowGroup::GetBroadcast() const
+{
+	return broadcast;
+}
+
+void omb::WindowGroup::SetBroadcast(bool b)
+{
+	broadcast = b;
+}
+
+const std::map<DWORD, std::function<void()>>& omb::WindowGroup::GetHotkeyCallbacks()
+{
+	return hotkeyCallbacks;
+}
+
+const omb::Window* omb::WindowGroup::GetPrimaryWindow() const
+{
+	return primaryWindow;
+}
+
+const std::vector<omb::Window*>& omb::WindowGroup::GetWindows() const
+{
+	return windows;
+}
+
+void omb::WindowGroup::LeftClick(int delayMs)
+{
+	if (!clicking)
+	{
+		clicking = true;
+		windowSwitching = false;
+
+		std::thread t([this, delayMs]()
+		{
+			omb::LeftClickWindows(GetWindows(), delayMs);
+			windowSwitching = true;
+			clicking = false;
+		});
+
+		t.detach();
+	}
 }
