@@ -124,11 +124,52 @@ int omb::UserInterface::CreateIdWindow()
 	return windowId;
 }
 
+int omb::UserInterface::CreateCursorWindow()
+{
+	int windowId = -1;
+
+	if (app)
+	{
+		windowId = nextCursorWindowId++;
+
+		QMetaObject::invokeMethod(app, [this, windowId]()
+		{
+			QWidget* window = new QWidget();
+			window->resize(4, 4);
+			window->setWindowFlags(Qt::Widget | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowTransparentForInput);
+			window->setParent(0);
+			window->show();
+
+			cursorWindows.emplace(windowId, window);
+		});
+	}
+
+	return windowId;
+}
+
 void omb::UserInterface::SetIdWindowPosition(int windowId, int x, int y)
 {
 	QMetaObject::invokeMethod(app, [this, windowId, x, y]()
 	{
 		idWindows[windowId]->move(x + 10, y + 10);
+	});
+}
+
+void omb::UserInterface::SetCursorWindowPosition(int windowId, int x, int y, bool visible)
+{
+	QMetaObject::invokeMethod(app, [this, windowId, x, y, visible]()
+	{
+		auto window = cursorWindows[windowId];
+
+		if (visible)
+		{
+			window->move(x, y);
+			window->show();
+		}
+		else
+		{
+			window->hide();
+		}
 	});
 }
 

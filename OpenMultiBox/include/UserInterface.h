@@ -16,7 +16,9 @@ namespace omb
 		void Start();
 		void Stop();
 		int CreateIdWindow();
+		int CreateCursorWindow();
 		void SetIdWindowPosition(int windowId, int x, int y);
+		void SetCursorWindowPosition(int windowId, int x, int y, bool visible);
 
 		void SetBroadcast(bool b);
 		void SetStayOnTop(bool b);
@@ -28,15 +30,16 @@ namespace omb
 		QApplication* app = nullptr;
 
 		std::map<int, QWidget*> idWindows;
+		std::map<int, QWidget*> cursorWindows;
 
 		QLabel* mouseBroadcastLabel = nullptr;
 		QLabel* movementBroadcastLabel = nullptr;
 		QLabel* stayOnTopLabel = nullptr;
 		QLabel* copyWTFLabel = nullptr;
 		QLabel* broadcastLabel = nullptr;
-
 		QMainWindow* mainWindow = nullptr;
 
 		int nextWindowId = 0;
+		int nextCursorWindowId = 0;
 	};
 }

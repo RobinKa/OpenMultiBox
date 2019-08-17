@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <chrono>
 
 #include "EventLoop.h"
 #include "WinApiUtil.h"
@@ -95,10 +96,11 @@ int main(int argc, char** argv)
 	// Wait until all windows are opened and thus found
 	std::vector<omb::Window> windows;
 	std::vector<int> idWindowIds;
+	std::vector<int> cursorWindowIds;
 
 	while (procInfos.size() > 0)
 	{
-		dispatchAction([&windows, &procInfos, &settings, &idWindowIds, &ui]()
+		dispatchAction([&windows, &procInfos, &settings, &idWindowIds, &cursorWindowIds, &ui]()
 		{
 			for (size_t i = procInfos.size(); i --> 0;)
 			{
@@ -108,6 +110,7 @@ int main(int argc, char** argv)
 					windows.push_back(omb::Window(windowHandles));
 					procInfos.erase(procInfos.begin() + i);
 					idWindowIds.push_back(ui.CreateIdWindow());
+					cursorWindowIds.push_back(ui.CreateCursorWindow());
 				}
 				catch (const std::exception& ex)
 				{
@@ -123,6 +126,37 @@ int main(int argc, char** argv)
 	{
 		group.AddWindow(&window);
 	}
+
+	std::thread cursorThread([&ui, &eventLoop, &cursorWindowIds, &group]()
+	{
+		try
+		{
+			while (!eventLoop.IsStopped())
+			{
+				POINT cursorPos;
+				if (GetCursorPos(&cursorPos))
+				{
+					HWND cursorWindowHandle = WindowFromPoint(cursorPos);
+
+					if (cursorWindowHandle)
+					{
+						const auto& windows = group.GetWindows();
+						for (int i = 0; i < cursorWindowIds.size(); i++)
+						{
+							const auto& virtualCursorPos = omb::TransformWindowPoint(cursorWindowHandle, windows[i]->GetHandles()[0], cursorPos);
+							ui.SetCursorWindowPosition(cursorWindowIds[i], virtualCursorPos.x, virtualCursorPos.y, !windows[i]->IsFocused());
+						}
+					}
+				}
+
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+		}
+		catch (const std::exception& ex)
+		{
+			std::cout << "Cursor thread exception: " << ex.what() << std::endl;
+		}
+	});
 
 	group.AddRearrangeCallback([&ui, &idWindowIds, &windows, &group]()
 	{
@@ -265,6 +299,8 @@ int main(int argc, char** argv)
 	group.RemoveHooks();
 
 	eventLoop.Stop();
+
+	cursorThread.join();
 
 	//t.join();
 
