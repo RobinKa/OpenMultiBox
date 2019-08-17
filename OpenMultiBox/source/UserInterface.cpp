@@ -51,7 +51,7 @@ void omb::UserInterface::Start()
 			SetStayOnTop(false);
 			stayOnTopLabel->show();
 
-			mouseBroadcastLabel = new QLabel("[OEM1] Mouse broadcast", mainWindow);
+			mouseBroadcastLabel = new QLabel("[F2] Mouse broadcast", mainWindow);
 			mouseBroadcastLabel->resize(512, 200);
 			palette = mouseBroadcastLabel->palette();
 			palette.setColor(mouseBroadcastLabel->foregroundRole(), Qt::yellow);

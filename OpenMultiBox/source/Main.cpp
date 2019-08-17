@@ -171,7 +171,7 @@ int main(int argc, char** argv)
 		ui.SetMainWindowPosition(mainPos.first + mainSize.first / 2, mainPos.second);
 	});
 
-	group.AddHotkeyCallback(VK_OEM_1, [&group]()
+	group.AddHotkeyCallback(VK_F2, [&group]()
 	{
 		group.LeftClick(35);
 	});
