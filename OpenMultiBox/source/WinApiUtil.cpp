@@ -77,13 +77,13 @@ bool omb::IsFocusedWindow(HWND hwnd)
 POINT omb::TransformWindowPoint(HWND originalWindowHandle, HWND targetWindowHandle, POINT point)
 {
 	RECT originalRect;
-	if (!GetClientRect(originalWindowHandle, &originalRect))
+	if (!GetWindowRect(originalWindowHandle, &originalRect))
 	{
 		throw std::exception("Failed to get original window rect");
 	}
 
 	RECT targetRect;
-	if (!GetClientRect(targetWindowHandle, &targetRect))
+	if (!GetWindowRect(targetWindowHandle, &targetRect))
 	{
 		throw std::exception("Failed to get target window rect");
 	}
@@ -96,14 +96,9 @@ POINT omb::TransformWindowPoint(HWND originalWindowHandle, HWND targetWindowHand
 	double relX = (point.x - (double)originalRect.left) / origWidth;
 	double relY = (point.y - (double)originalRect.top) / origHeight;
 
-	POINT targetPos;
-	targetPos.x = 0;
-	targetPos.y = 0;
-	ClientToScreen(targetWindowHandle, &targetPos);
-
 	POINT transformed;
-	transformed.x = (DWORD)(targetPos.x + relX * targetWidth);
-	transformed.y = (DWORD)(targetPos.y + relY * targetHeight);
+	transformed.x = (DWORD)(targetRect.left + relX * targetWidth);
+	transformed.y = (DWORD)(targetRect.top + relY * targetHeight);
 
 	return transformed;
 }
