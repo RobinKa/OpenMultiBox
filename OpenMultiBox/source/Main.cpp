@@ -124,13 +124,17 @@ int main(int argc, char** argv)
 		group.AddWindow(&window);
 	}
 
-	group.AddRearrangeCallback([&ui, &idWindowIds, &windows]()
+	group.AddRearrangeCallback([&ui, &idWindowIds, &windows, &group]()
 	{
 		for (int i = 0; i < idWindowIds.size(); i++)
 		{
 			const auto& pos = windows[i].GetPosition();
 			ui.SetIdWindowPosition(idWindowIds[i], pos.first, pos.second);
 		}
+
+		const auto& mainPos = group.GetPrimaryWindow()->GetPosition();
+		const auto& mainSize = group.GetPrimaryWindow()->GetSize();
+		ui.SetMainWindowPosition(mainPos.first + mainSize.first / 2, mainPos.second);
 	});
 
 	group.AddHotkeyCallback(VK_OEM_1, [&group]()
@@ -138,20 +142,22 @@ int main(int argc, char** argv)
 		group.LeftClick(35);
 	});
 
-	group.AddHotkeyCallback(VK_F7, [&group, &eventLoop]()
+	group.AddHotkeyCallback(VK_F7, [&group, &eventLoop, &ui]()
 	{
-		eventLoop.EnqueueAction([&group]()
+		eventLoop.EnqueueAction([&group, &ui]()
 		{
 			group.SetBroadcastMovement(!group.GetBroadcastMovement());
+			ui.SetMovementBroadcast(group.GetBroadcastMovement());
 			std::cout << "Broadcast movement: " << group.GetBroadcastMovement() << std::endl;
 		});
 	});
 
-	group.AddHotkeyCallback(VK_F8, [&group, &eventLoop]()
+	group.AddHotkeyCallback(VK_F8, [&group, &eventLoop, &ui]()
 	{
-		eventLoop.EnqueueAction([&group]()
+		eventLoop.EnqueueAction([&group, &ui]()
 		{
 			group.SetStayOnTop(!group.GetStayOnTop());
+			ui.SetStayOnTop(group.GetStayOnTop());
 			std::cout << "Stay on top: " << group.GetStayOnTop() << std::endl;
 		});
 	});
@@ -204,11 +210,12 @@ int main(int argc, char** argv)
 		}
 	});
 
-	group.AddHotkeyCallback(VK_F10, [&group, &eventLoop]()
+	group.AddHotkeyCallback(VK_F10, [&group, &eventLoop, &ui]()
 	{
-		eventLoop.EnqueueAction([&group]()
+		eventLoop.EnqueueAction([&group, &ui]()
 		{
 			group.SetBroadcast(!group.GetBroadcast());
+			ui.SetBroadcast(group.GetBroadcast());
 			std::cout << "Broadcast: " << group.GetBroadcast() << std::endl;
 		});
 	});

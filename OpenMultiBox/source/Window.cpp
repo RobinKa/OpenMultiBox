@@ -45,3 +45,11 @@ std::pair<int, int> omb::Window::GetPosition() const
 
 	return std::make_pair(rect.left, rect.top);
 }
+
+std::pair<int, int> omb::Window::GetSize() const
+{
+	RECT rect;
+	GetWindowRect(GetHandles()[0], &rect);
+
+	return std::make_pair(rect.right - rect.left, rect.bottom - rect.top);
+}

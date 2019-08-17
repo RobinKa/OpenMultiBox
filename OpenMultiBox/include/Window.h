@@ -15,6 +15,7 @@ namespace omb
 
 		std::vector<HWND> GetHandles() const;
 		std::pair<int, int> GetPosition() const;
+		std::pair<int, int> GetSize() const;
 
 		bool IsFocused() const;
 	private:
