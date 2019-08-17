@@ -54,7 +54,7 @@ namespace omb
 		bool broadcast = false;
 		bool stayOnTop = false;
 		bool broadcastMovement = false;
-		bool windowSwitching = false;
+		bool windowSwitching = true;
 		bool clicking = false;
 	};
 }
