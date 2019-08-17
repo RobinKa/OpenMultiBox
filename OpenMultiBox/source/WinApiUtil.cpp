@@ -24,6 +24,7 @@ struct EnumWindowCallbackData
 {
 	std::vector<HWND> WindowHandles;
 	std::string WindowTitle;
+	std::string WindowClassName;
 	DWORD ProcessId;
 };
 
@@ -35,9 +36,11 @@ static BOOL CALLBACK FindProcessWindowHandleCallback(HWND hwnd, LPARAM lParam)
 	GetWindowThreadProcessId(hwnd, &windowProcessId);
 
 	char title[256];
-	GetWindowText(hwnd, title, 256);
+	char className[256];
 
-	if (windowProcessId == data->ProcessId && data->WindowTitle == title)
+	if (windowProcessId == data->ProcessId &&
+		GetWindowText(hwnd, title, 256) && title == data->WindowTitle &&
+		GetClassName(hwnd, className, 256) && className == data->WindowClassName)
 	{
 		data->WindowHandles.push_back(hwnd);
 	}
@@ -45,20 +48,26 @@ static BOOL CALLBACK FindProcessWindowHandleCallback(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-std::vector<HWND> omb::FindProcessWindowHandles(DWORD processId, const std::string& windowTitle)
+HWND omb::FindProcessWindowHandles(DWORD processId, const std::string& windowTitle, const std::string& windowClassName)
 {
 	EnumWindowCallbackData callbackData;
 	callbackData.WindowTitle = windowTitle;
+	callbackData.WindowClassName = windowClassName;
 	callbackData.ProcessId = processId;
+	callbackData.WindowHandles = std::vector<HWND>();
 
 	EnumWindows((WNDENUMPROC)FindProcessWindowHandleCallback, (LPARAM)&callbackData);
 
-	if (callbackData.WindowHandles.size() < 2)
+	if (callbackData.WindowHandles.size() < 1)
 	{
 		throw std::exception("Failed to find process window");
 	}
+	else if (callbackData.WindowHandles.size() > 1)
+	{
+		throw std::exception("Found more than one process window");
+	}
 
-	return callbackData.WindowHandles;
+	return callbackData.WindowHandles[0];
 }
 
 std::pair<int, int> omb::GetMainScreenSize()
@@ -126,7 +135,7 @@ void omb::LeftClickWindows(const std::vector<Window*>& windows, Window* lastWind
 
 	for (auto window : secondaryWindows)
 	{
-		auto windowHandle = window->GetHandles()[0];
+		auto windowHandle = window->GetHandle();
 
 		const auto& pos = omb::TransformWindowPoint(cursorWindow, windowHandle, cursorPos);
 
@@ -138,7 +147,7 @@ void omb::LeftClickWindows(const std::vector<Window*>& windows, Window* lastWind
 
 	if (primaryWindow)
 	{
-		auto windowHandle = primaryWindow->GetHandles()[0];
+		auto windowHandle = primaryWindow->GetHandle();
 
 		const auto& pos = omb::TransformWindowPoint(cursorWindow, windowHandle, cursorPos);
 

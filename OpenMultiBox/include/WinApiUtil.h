@@ -9,7 +9,7 @@
 namespace omb
 {
 	PROCESS_INFORMATION Launch(const std::string& path);
-	std::vector<HWND> FindProcessWindowHandles(DWORD processId, const std::string& windowTitle);
+	HWND FindProcessWindowHandles(DWORD processId, const std::string& windowTitle, const std::string& windowClassName);
 	std::pair<int, int> GetMainScreenSize();
 	bool IsFocusedWindow(HWND hwnd);
 	POINT TransformWindowPoint(HWND originalWindowHandle, HWND targetWindowHandle, POINT point);

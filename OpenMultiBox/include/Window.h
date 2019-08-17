@@ -9,16 +9,16 @@ namespace omb
 	class Window
 	{
 	public:
-		Window(const std::vector<HWND>& windowHandle);
+		Window(HWND windowHandle);
 
 		void SetRect(int x, int y, int width, int height, bool topMost) const;
 
-		std::vector<HWND> GetHandles() const;
+		HWND GetHandle() const;
 		std::pair<int, int> GetPosition() const;
 		std::pair<int, int> GetSize() const;
 
 		bool IsFocused() const;
 	private:
-		std::vector<HWND> windowHandles;
+		HWND windowHandle;
 	};
 }

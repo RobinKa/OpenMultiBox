@@ -125,10 +125,7 @@ void omb::WindowGroup::SetupKeyboardBroadcastHook()
 				{
 					if (window != primaryWindow)
 					{
-						for (auto windowHandle : window->GetHandles())
-						{
-							PostMessage(windowHandle, (UINT)wParam, (WPARAM)data->vkCode, GetKeyEventParameters(wParam));
-						}
+						PostMessage(window->GetHandle(), (UINT)wParam, (WPARAM)data->vkCode, GetKeyEventParameters(wParam));
 					}
 				}
 			}
@@ -152,9 +149,8 @@ void omb::WindowGroup::SetupMouseBroadcastHook()
 
 			HWND cursorWindowHandle = WindowFromPoint(data->pt);
 
-			std::cout << "Cursor window handle: " << cursorWindowHandle << " | Primary handles: " <<
-				WindowGroupInstance->primaryWindow->GetHandles()[0] << ", " <<
-				WindowGroupInstance->primaryWindow->GetHandles()[1] << std::endl;
+			std::cout << "Cursor window handle: " << cursorWindowHandle << " | Primary handle: " <<
+				WindowGroupInstance->primaryWindow->GetHandle() << std::endl;
 
 			// TODO: Broadcast click
 		}

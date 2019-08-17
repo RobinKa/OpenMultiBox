@@ -4,44 +4,33 @@
 
 #include "WinApiUtil.h"
 
-omb::Window::Window(const std::vector<HWND>& windowHandles)
+omb::Window::Window(HWND windowHandle)
 {
-	this->windowHandles = windowHandles;
+	this->windowHandle = windowHandle;
 }
 
 void omb::Window::SetRect(int x, int y, int width, int height, bool topMost) const
 {
-	for (auto windowHandle : windowHandles)
+	if (!SetWindowPos(windowHandle, topMost ? HWND_TOPMOST : HWND_NOTOPMOST, x, y, width, height, SWP_NOOWNERZORDER))
 	{
-		if (!SetWindowPos(windowHandle, topMost ? HWND_TOPMOST : HWND_NOTOPMOST, x, y, width, height, SWP_NOOWNERZORDER))
-		{
-			throw std::exception("Failed to set window position");
-		}
+		throw std::exception("Failed to set window position");
 	}
 }
 
-std::vector<HWND> omb::Window::GetHandles() const
+HWND omb::Window::GetHandle() const
 {
-	return windowHandles;
+	return windowHandle;
 }
 
 bool omb::Window::IsFocused() const
 {
-	for (auto windowHandle : windowHandles)
-	{
-		if (omb::IsFocusedWindow(windowHandle))
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return omb::IsFocusedWindow(windowHandle);
 }
 
 std::pair<int, int> omb::Window::GetPosition() const
 {
 	RECT rect;
-	GetWindowRect(GetHandles()[0], &rect);
+	GetWindowRect(GetHandle(), &rect);
 
 	return std::make_pair(rect.left, rect.top);
 }
@@ -49,7 +38,7 @@ std::pair<int, int> omb::Window::GetPosition() const
 std::pair<int, int> omb::Window::GetSize() const
 {
 	RECT rect;
-	GetWindowRect(GetHandles()[0], &rect);
+	GetWindowRect(GetHandle(), &rect);
 
 	return std::make_pair(rect.right - rect.left, rect.bottom - rect.top);
 }

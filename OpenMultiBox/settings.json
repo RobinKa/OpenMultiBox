@@ -1,9 +1,11 @@
 {
-  "wowPath": "G:/World of Warcraft/_retail_",
+  "wowPath": "G:/World of Warcraft/_classic_",
   "windowTitle": "World of Warcraft",
+  "windowClassName": "GxWindowClass",
   "instanceCount": 5,
+  "clickDelay":  35,
   "copyFromAccount": "AIRAAX",
   "copyToAccounts": [ "471132#1", "471132#2", "471132#3", "471132#4" ],
   "copyFromCharacter": "AIRAAX/Tarren Mill/Nuhrok",
-  "copyToCharacters": [ "471132#1/Tarren Mill/Nushamb", "471132#2/Tarren Mill/Nushamc", "471132#3/Tarren Mill/Nushamd", "471132#4/Tarren Mill/Nushame" ]
+  "copyToCharacters": [ "AIRAAX/Tarren Mill/Nupriest", "471132#1/Tarren Mill/Nulockb", "471132#2/Tarren Mill/Nulockc", "471132#3/Tarren Mill/Nulockd", "471132#4/Tarren Mill/Nulocke" ]
 }

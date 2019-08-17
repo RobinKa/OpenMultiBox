@@ -16,6 +16,7 @@ struct Settings
 {
 	fs::path WowPath;
 	std::string WindowTitle;
+	std::string WindowClassName;
 	int InstanceCount;
 	std::string CopyFromAccount;
 	std::string CopyFromCharacter;
@@ -34,6 +35,7 @@ Settings LoadSettings()
 		Settings settings;
 		settings.WowPath = fs::path(std::string(j["wowPath"]));
 		settings.WindowTitle = j["windowTitle"];
+		settings.WindowClassName = j["windowClassName"];
 		settings.InstanceCount = j["instanceCount"];
 		settings.CopyFromAccount = j["copyFromAccount"];
 		settings.CopyFromCharacter = j["copyFromCharacter"];
@@ -57,8 +59,7 @@ int main(int argc, char** argv)
 	omb::UserInterface ui;
 	ui.Start();
 
-
-	const int SleepInterval = 100;
+	const int SleepInterval = 50;
 
 	const auto& settings = LoadSettings();
 
@@ -106,8 +107,8 @@ int main(int argc, char** argv)
 			{
 				try
 				{
-					const auto& windowHandles = omb::FindProcessWindowHandles(procInfos[i].dwProcessId, settings.WindowTitle);
-					windows.push_back(omb::Window(windowHandles));
+					auto windowHandle = omb::FindProcessWindowHandles(procInfos[i].dwProcessId, settings.WindowTitle, settings.WindowClassName);
+					windows.push_back(omb::Window(windowHandle));
 					procInfos.erase(procInfos.begin() + i);
 					idWindowIds.push_back(ui.CreateIdWindow());
 					cursorWindowIds.push_back(ui.CreateCursorWindow());
@@ -143,7 +144,7 @@ int main(int argc, char** argv)
 						const auto& windows = group.GetWindows();
 						for (int i = 0; i < cursorWindowIds.size(); i++)
 						{
-							const auto& virtualCursorPos = omb::TransformWindowPoint(cursorWindowHandle, windows[i]->GetHandles()[0], cursorPos);
+							const auto& virtualCursorPos = omb::TransformWindowPoint(cursorWindowHandle, windows[i]->GetHandle(), cursorPos);
 							ui.SetCursorWindowPosition(cursorWindowIds[i], virtualCursorPos.x, virtualCursorPos.y, !windows[i]->IsFocused());
 						}
 					}

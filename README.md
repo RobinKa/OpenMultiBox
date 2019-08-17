@@ -10,7 +10,7 @@ Multiboxing software for World of Warcraft (and perhaps other games, if you are 
 
 # Guide
 1. Download binaries from [Releases](https://github.com/RobinKa/OpenMultiBox/releases) or build them yourself with CMake (requires Qt5).
-2. Edit `settings.json` (mainly setting the WoW path and instance count, the rest is for copying WTF settings)
+2. Edit `settings.json` (mainly setting the WoW path and instance count, the rest is for copying WTF settings and finding the window)
 3. Make sure your WoW uses borderless or windowed mode
 4. Start `OpenMultiBox.exe` which will launch the WoW instances and align them
 5. Log in and turn on key broadcasting with F10
@@ -25,6 +25,7 @@ Multiboxing software for World of Warcraft (and perhaps other games, if you are 
 
 # Known major issues and to do list
 - Window placement hardcoded (although still relative to screen size)
+- Window video streaming for fixed resolutions and overlays from other windows
 
 # Acknowledgements
 - [Qt](https://www.qt.io/)
