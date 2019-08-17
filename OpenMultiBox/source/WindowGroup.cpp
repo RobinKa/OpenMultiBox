@@ -48,6 +48,11 @@ void omb::WindowGroup::Rearrange()
 			secondaryIndex++;
 		}
 	}
+
+	for (const auto& callback : rearrangeCallbacks)
+	{
+		callback();
+	}
 }
 
 void omb::WindowGroup::RearrangeIfPrimaryChanged()
@@ -178,6 +183,11 @@ void omb::WindowGroup::RemoveHooks()
 void omb::WindowGroup::AddHotkeyCallback(DWORD key, std::function<void()> callback)
 {
 	hotkeyCallbacks.emplace(key, callback);
+}
+
+void omb::WindowGroup::AddRearrangeCallback(std::function<void()> callback)
+{
+	rearrangeCallbacks.push_back(callback);
 }
 
 void omb::WindowGroup::SetStayOnTop(bool b)

@@ -37,3 +37,11 @@ bool omb::Window::IsFocused() const
 
 	return false;
 }
+
+std::pair<int, int> omb::Window::GetPosition() const
+{
+	RECT rect;
+	GetWindowRect(GetHandles()[0], &rect);
+
+	return std::make_pair(rect.left, rect.top);
+}

@@ -7,6 +7,7 @@
 #include "Window.h"
 #include "WindowGroup.h"
 #include "Json.h"
+#include "UserInterface.h"
 
 namespace fs = std::filesystem;
 
@@ -50,8 +51,12 @@ Settings LoadSettings()
 	}
 }
 
-int main()
+int main(int argc, char** argv)
 {
+	omb::UserInterface ui;
+	ui.Start();
+
+
 	const int SleepInterval = 100;
 
 	const auto& settings = LoadSettings();
@@ -89,10 +94,11 @@ int main()
 
 	// Wait until all windows are opened and thus found
 	std::vector<omb::Window> windows;
+	std::vector<int> idWindowIds;
 
 	while (procInfos.size() > 0)
 	{
-		dispatchAction([&windows, &procInfos, &settings]()
+		dispatchAction([&windows, &procInfos, &settings, &idWindowIds, &ui]()
 		{
 			for (size_t i = procInfos.size(); i --> 0;)
 			{
@@ -101,6 +107,7 @@ int main()
 					const auto& windowHandles = omb::FindProcessWindowHandles(procInfos[i].dwProcessId, settings.WindowTitle);
 					windows.push_back(omb::Window(windowHandles));
 					procInfos.erase(procInfos.begin() + i);
+					idWindowIds.push_back(ui.CreateIdWindow());
 				}
 				catch (const std::exception& ex)
 				{
@@ -116,6 +123,15 @@ int main()
 	{
 		group.AddWindow(&window);
 	}
+
+	group.AddRearrangeCallback([&ui, &idWindowIds, &windows]()
+	{
+		for (int i = 0; i < idWindowIds.size(); i++)
+		{
+			const auto& pos = windows[i].GetPosition();
+			ui.SetIdWindowPosition(idWindowIds[i], pos.first, pos.second);
+		}
+	});
 
 	group.AddHotkeyCallback(VK_OEM_1, [&group]()
 	{
@@ -236,6 +252,8 @@ int main()
 	}
 
 	std::cout << "Done" << std::endl;
+
+	ui.Stop();
 
 	group.RemoveHooks();
 

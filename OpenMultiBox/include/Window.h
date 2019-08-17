@@ -14,6 +14,7 @@ namespace omb
 		void SetRect(int x, int y, int width, int height, bool topMost) const;
 
 		std::vector<HWND> GetHandles() const;
+		std::pair<int, int> GetPosition() const;
 
 		bool IsFocused() const;
 	private:

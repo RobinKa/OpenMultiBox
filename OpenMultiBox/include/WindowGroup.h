@@ -22,7 +22,6 @@ namespace omb
 		void Rearrange();
 		void RearrangeIfPrimaryChanged();
 
-		void AddHotkeyCallback(DWORD key, std::function<void()> callback);
 
 		void LeftClick(int delayMs);
 
@@ -36,14 +35,19 @@ namespace omb
 		void SetWindowSwitching(bool b);
 		bool GetWindowSwitching() const;
 
+		void AddHotkeyCallback(DWORD key, std::function<void()> callback);
 		const std::map<DWORD, std::function<void()>>& GetHotkeyCallbacks();
+
+		void AddRearrangeCallback(std::function<void()> callback);
 
 		const Window* GetPrimaryWindow() const;
 		const std::vector<Window*>& GetWindows() const;
 	private:
 		std::map<DWORD, std::function<void()>> hotkeyCallbacks;
+		std::vector<std::function<void()>> rearrangeCallbacks;
 
 		std::vector<Window*> windows;
+
 		Window* primaryWindow = nullptr;
 
 		Window* GetFocusedWindow() const;
