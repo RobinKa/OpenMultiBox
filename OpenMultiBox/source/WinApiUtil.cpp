@@ -108,9 +108,20 @@ POINT omb::TransformWindowPoint(HWND originalWindowHandle, HWND targetWindowHand
 	return transformed;
 }
 
-void omb::LeftClickWindows(const std::vector<class Window*>& windows, int delayMs)
+void omb::LeftClickWindows(const std::vector<Window*>& windows, Window* lastWindow, int delayMs)
 {
-	auto delay = std::chrono::milliseconds(delayMs);
+	auto secondaryWindows = windows;
+	Window* primaryWindow = nullptr;
+
+	// Extract primary window since we want to click it last
+	auto primaryWindowIt = std::find(std::begin(secondaryWindows), std::end(secondaryWindows), lastWindow);
+	if (primaryWindowIt != std::end(secondaryWindows))
+	{
+		secondaryWindows.erase(primaryWindowIt);
+		primaryWindow = lastWindow;
+	}
+
+	std::chrono::milliseconds delay(delayMs);
 
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -118,9 +129,21 @@ void omb::LeftClickWindows(const std::vector<class Window*>& windows, int delayM
 	HWND cursorWindow;
 	cursorWindow = WindowFromPoint(cursorPos);
 
-	for (auto window : windows)
+	for (auto window : secondaryWindows)
 	{
 		auto windowHandle = window->GetHandles()[0];
+
+		const auto& pos = omb::TransformWindowPoint(cursorWindow, windowHandle, cursorPos);
+
+		mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, (DWORD)((pos.x / 2560.) * 65535.), (DWORD)((pos.y / 1440.) * 65535.), 0, 0);
+		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+		std::this_thread::sleep_for(delay);
+	}
+
+	if (primaryWindow)
+	{
+		auto windowHandle = primaryWindow->GetHandles()[0];
 
 		const auto& pos = omb::TransformWindowPoint(cursorWindow, windowHandle, cursorPos);
 

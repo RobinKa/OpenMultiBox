@@ -27,7 +27,7 @@ void omb::WindowGroup::Rearrange()
 
 	int secondaryIndex = 0;
 
-	if (windowSwitching)
+	if (windowSwitching && !clicking)
 	{
 		const auto focusedWindow = GetFocusedWindow();
 		if (focusedWindow)
@@ -249,7 +249,7 @@ void omb::WindowGroup::LeftClick(int delayMs)
 
 		std::thread t([this, delayMs]()
 		{
-			omb::LeftClickWindows(GetWindows(), delayMs);
+			omb::LeftClickWindows(GetWindows(), primaryWindow, delayMs);
 			windowSwitching = true;
 			clicking = false;
 		});
