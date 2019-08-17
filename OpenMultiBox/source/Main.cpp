@@ -18,6 +18,7 @@ struct Settings
 	std::string WindowTitle;
 	std::string WindowClassName;
 	int InstanceCount;
+	int ClickDelay;
 	std::string CopyFromAccount;
 	std::string CopyFromCharacter;
 	std::vector<std::string> CopyToAccounts;
@@ -37,6 +38,7 @@ Settings LoadSettings()
 		settings.WindowTitle = j["windowTitle"];
 		settings.WindowClassName = j["windowClassName"];
 		settings.InstanceCount = j["instanceCount"];
+		settings.ClickDelay = j["clickDelay"];
 		settings.CopyFromAccount = j["copyFromAccount"];
 		settings.CopyFromCharacter = j["copyFromCharacter"];
 		settings.CopyToAccounts = j["copyToAccounts"].get<std::vector<std::string>>();
@@ -172,9 +174,9 @@ int main(int argc, char** argv)
 		ui.SetMainWindowPosition(mainPos.first + mainSize.first / 2, mainPos.second);
 	});
 
-	group.AddHotkeyCallback(VK_F2, [&group]()
+	group.AddHotkeyCallback(VK_F2, [&group, &settings]()
 	{
-		group.LeftClick(35);
+		group.LeftClick(settings.ClickDelay);
 	});
 
 	group.AddHotkeyCallback(VK_F7, [&group, &eventLoop, &ui]()
