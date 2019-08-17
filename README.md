@@ -1,6 +1,8 @@
 # OpenMultiBox
 Multiboxing software for World of Warcraft (and perhaps other games, if you are willing to modify it slightly).
 
+![](https://i.imgur.com/JYNmXkz.png)
+
 # Features
 - Key broadcasting
 - Mouse click broadcasting
