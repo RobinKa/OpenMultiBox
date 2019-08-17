@@ -13,7 +13,7 @@ void omb::Window::SetRect(int x, int y, int width, int height, bool topMost) con
 {
 	for (auto windowHandle : windowHandles)
 	{
-		if (!SetWindowPos(windowHandle, topMost ? HWND_TOPMOST : HWND_NOTOPMOST, x + 1, y + 1, width + 1, height + 1, SWP_NOOWNERZORDER))
+		if (!SetWindowPos(windowHandle, topMost ? HWND_TOPMOST : HWND_NOTOPMOST, x, y, width, height, SWP_NOOWNERZORDER))
 		{
 			throw std::exception("Failed to set window position");
 		}
