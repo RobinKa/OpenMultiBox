@@ -51,7 +51,7 @@ void omb::UserInterface::Start()
 			SetStayOnTop(false);
 			stayOnTopLabel->show();
 
-			mouseBroadcastLabel = new QLabel("[F2] Mouse broadcast", mainWindow);
+			mouseBroadcastLabel = new QLabel("[F2/F3] Mouse broadcast", mainWindow);
 			mouseBroadcastLabel->resize(512, 200);
 			palette = mouseBroadcastLabel->palette();
 			palette.setColor(mouseBroadcastLabel->foregroundRole(), Qt::yellow);
@@ -193,7 +193,7 @@ void omb::UserInterface::SetBroadcast(bool b)
 {
 	QMetaObject::invokeMethod(app, [this, b]()
 	{
-		broadcastLabel->setText(QString("[F10 / F11] Broadcast: %1").arg(b ? "Yes" : "No"));
+		broadcastLabel->setText(QString("[F10] Broadcast: %1").arg(b ? "Yes" : "No"));
 	});
 }
 

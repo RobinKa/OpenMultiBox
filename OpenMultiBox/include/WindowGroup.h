@@ -23,7 +23,7 @@ namespace omb
 		void RearrangeIfPrimaryChanged();
 
 
-		void LeftClick(int delayMs);
+		void Click(int delayMs, bool left);
 
 		void SetStayOnTop(bool b);
 		bool GetStayOnTop() const;

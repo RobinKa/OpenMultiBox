@@ -236,16 +236,16 @@ const std::vector<omb::Window*>& omb::WindowGroup::GetWindows() const
 	return windows;
 }
 
-void omb::WindowGroup::LeftClick(int delayMs)
+void omb::WindowGroup::Click(int delayMs, bool left)
 {
 	if (!clicking)
 	{
 		clicking = true;
 		windowSwitching = false;
 
-		std::thread t([this, delayMs]()
+		std::thread t([this, delayMs, left]()
 		{
-			omb::LeftClickWindows(GetWindows(), primaryWindow, delayMs);
+			omb::ClickWindows(GetWindows(), primaryWindow, delayMs, left);
 			windowSwitching = true;
 			clicking = false;
 		});

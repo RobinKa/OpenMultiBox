@@ -176,7 +176,12 @@ int main(int argc, char** argv)
 
 	group.AddHotkeyCallback(VK_F2, [&group, &settings]()
 	{
-		group.LeftClick(settings.ClickDelay);
+		group.Click(settings.ClickDelay, true);
+	});
+
+	group.AddHotkeyCallback(VK_F3, [&group, &settings]()
+	{
+		group.Click(settings.ClickDelay, false);
 	});
 
 	group.AddHotkeyCallback(VK_F7, [&group, &eventLoop, &ui]()

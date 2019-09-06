@@ -112,8 +112,11 @@ POINT omb::TransformWindowPoint(HWND originalWindowHandle, HWND targetWindowHand
 	return transformed;
 }
 
-void omb::LeftClickWindows(const std::vector<Window*>& windows, Window* lastWindow, int delayMs)
+void omb::ClickWindows(const std::vector<Window*>& windows, Window* lastWindow, int delayMs, bool left)
 {
+	const auto down = left ? MOUSEEVENTF_LEFTDOWN : MOUSEEVENTF_RIGHTDOWN;
+	const auto up = left ? MOUSEEVENTF_LEFTUP : MOUSEEVENTF_RIGHTUP;
+
 	auto secondaryWindows = windows;
 	Window* primaryWindow = nullptr;
 
@@ -140,8 +143,8 @@ void omb::LeftClickWindows(const std::vector<Window*>& windows, Window* lastWind
 		const auto& pos = omb::TransformWindowPoint(cursorWindow, windowHandle, cursorPos);
 
 		mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, (DWORD)((pos.x / 2560.) * 65535.), (DWORD)((pos.y / 1440.) * 65535.), 0, 0);
-		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+		mouse_event(down, 0, 0, 0, 0);
+		mouse_event(up, 0, 0, 0, 0);
 		std::this_thread::sleep_for(delay);
 	}
 
@@ -152,8 +155,8 @@ void omb::LeftClickWindows(const std::vector<Window*>& windows, Window* lastWind
 		const auto& pos = omb::TransformWindowPoint(cursorWindow, windowHandle, cursorPos);
 
 		mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, (DWORD)((pos.x / 2560.) * 65535.), (DWORD)((pos.y / 1440.) * 65535.), 0, 0);
-		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+		mouse_event(down, 0, 0, 0, 0);
+		mouse_event(up, 0, 0, 0, 0);
 		std::this_thread::sleep_for(delay);
 	}
 
